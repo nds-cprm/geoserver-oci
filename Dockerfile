@@ -13,7 +13,7 @@ FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS BUILDER
 
 ARG GEOSERVER_VERSION
 ARG MAVEN_OPTS="-Xmx512M"
-ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,gwc-distributed
+ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow
 
 ENV MAVEN_OPTS ${MAVEN_OPTS}
 
