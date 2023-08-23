@@ -8,10 +8,10 @@
 ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-11
 ARG TOMCAT_IMAGE_TAG=9-jre11-temurin-jammy
 ARG GEOSERVER_VERSION=2.23.2
-ARG GEOSERVER_GIT_URL=https://github.com/geoserver/geoserver.git
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS BUILDER
 
+ARG GEOSERVER_GIT_URL=https://github.com/geoserver/geoserver.git
 ARG GEOSERVER_VERSION
 ARG MAVEN_OPTS="-Xmx512M"
 ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow
