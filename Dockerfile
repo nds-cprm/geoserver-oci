@@ -7,7 +7,8 @@
 # Java 17 -> >2.23
 ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-11
 ARG TOMCAT_IMAGE_TAG=9-jre11-temurin-jammy
-ARG GEOSERVER_VERSION=2.19.7
+ARG GEOSERVER_VERSION=2.23.2
+ARG GEOSERVER_GIT_URL=https://github.com/geoserver/geoserver.git
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS BUILDER
 
@@ -19,7 +20,7 @@ ENV MAVEN_OPTS ${MAVEN_OPTS}
 
 WORKDIR /root
 
-RUN git clone https://github.com/geoserver/geoserver.git geoserver
+RUN git clone ${GEOSERVER_GIT_URL} geoserver
 
 WORKDIR /root/geoserver
 
@@ -40,10 +41,10 @@ ARG GEOSERVER_VERSION
 ARG GEOSERVER_DATA_DIR=/srv/geoserver/data
 
 LABEL org.opencontainers.image.title "GeoServer SGB/CPRM"
-LABEL org.opencontainers.image.description "Build de geoserver"
+LABEL org.opencontainers.image.description "Build de geoserver a partir do código fonte"
 LABEL org.opencontainers.image.vendor "SGB/CPRM"
-LABEL org.opencontainers.image.version ${GEOSERVER_VERSION}
-LABEL org.opencontainers.image.source https://github.com/cmotadev/geoserver
+LABEL org.opencontainers.image.version "${GEOSERVER_VERSION}"
+LABEL org.opencontainers.image.source "https://github.com/nds-cprm/geoserver-oci"
 LABEL org.opencontainers.image.authors "Carlos Eduardo Mota <carlos.mota@sgb.gov.br>"
 
 # Copy built
