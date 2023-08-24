@@ -19,3 +19,6 @@ Autor: Carlos Eduardo Mota
 - GEOSERVER_CONSOLE_DISABLED=FALSE
 - GEOSERVER_CSRF_DISABLED=TRUE
 - GEOSERVER_APPSCHEMA_PROPERTIES_FILE
+
+## Add extra fonts
+Mount font file on /usr/local/share/fonts
