@@ -35,6 +35,7 @@ RUN mvn -DskipTests clean install \
         -P $GEOSERVER_EXTENSIONS | tee install.log && \
     mv install.log ./web/app/target/geoserver/install.log
 
+
 FROM docker.io/library/tomcat:${TOMCAT_IMAGE_TAG} AS RELEASE
 
 ARG GEOSERVER_VERSION
@@ -48,19 +49,17 @@ LABEL org.opencontainers.image.source "https://github.com/nds-cprm/geoserver-oci
 LABEL org.opencontainers.image.authors "Carlos Eduardo Mota <carlos.mota@sgb.gov.br>"
 
 # Copy built
-COPY --from=BUILDER /root/geoserver/src/web/app/target/geoserver/ ${CATALINA_HOME}/webapps/geoserver/
+COPY --from=BUILDER /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
 
-ENV GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR} \
-    GEOSERVER_VERSION=${GEOSERVER_VERSION}
-
-VOLUME [ "${GEOSERVER_DATA_DIR}" ]
+ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
+    JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx3G"
 
 # Entrypoint
 COPY docker-entrypoint.sh /
 
-RUN mkdir -p $GEOSERVER_DATA_DIR && \
-    chgrp -R 0 $GEOSERVER_DATA_DIR && \
-    chmod -R g=u $GEOSERVER_DATA_DIR && \
+# Geoserver default data dir
+RUN chgrp -R 0 ./webapps/geoserver/data && \
+    chmod -R g=u ./webapps/geoserver/data && \
     chmod +x /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

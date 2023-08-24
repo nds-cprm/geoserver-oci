@@ -1,9 +1,7 @@
 #!/bin/bash
 set -ef -o pipefail
 
-GEOSERVER_OPTS="-Djava.awt.headless=true \
-    -server \
-    -XX:PerfDataSamplingInterval=500 \
+GEOSERVER_OPTS="-XX:PerfDataSamplingInterval=500 \
     -XX:SoftRefLRUPolicyMSPerMB=36000 \
     -XX:NewRatio=2 \
     -XX:+UseG1GC \
@@ -16,6 +14,11 @@ GEOSERVER_OPTS="-Djava.awt.headless=true \
     -Dorg.geotools.shapefile.datetime=true \
     -Dgeoserver.login.autocomplete=off \
     -DGEOSERVER_CONSOLE_DISABLED=${GEOSERVER_CONSOLE_DISABLED:-FALSE}"
+
+# TODO: Parametrizar CORS
+# https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
+
+# TODO: Parametrizar JMS Cluster
 
 # CSRF Whitelist
 GEOSERVER_CSRF_DISABLED=${GEOSERVER_CSRF_DISABLED:-FALSE}
