@@ -53,8 +53,8 @@ jobs:
         # List of tags
         tags: |
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.{{ matrix.build }}
-        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.{{ matrix.build }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.${{ matrix.build }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.${{ matrix.build }}
         cache-to: type=inline
         
     - name: Analyze for critical and high CVEs
@@ -63,7 +63,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.{{ matrix.build }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.${{ matrix.build }}
         sarif-file: sarif.output.json
         summary: true
     
