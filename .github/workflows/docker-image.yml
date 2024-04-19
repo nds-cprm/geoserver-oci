@@ -9,22 +9,16 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        version: [2.23, 2.24, 2.25]
+        version: [2.23.4, 2.23.5, 2.24.2, 2.24.3, 2.25.0]
         # jvm: [11]
-        # os: [alpine, jammy]
-        include:
-          - version: 2.23
-            build: 4
-          - version: 2.23
-            build: 5
-          - version: 2.24
-            build: 2
-          - version: 2.24
-            build: 3
-          - version: 2.25
-            build: 0
+        # os: [alpine, jammy]        
+    steps:
+    - name: Current DateTime
+      id: datetime
+      uses: Kaven-Universe/github-action-current-date-time@v1
+      with:
+        format: "YYYY_MM_DD HH_mm_ss_SSS"
         
-    steps:     
     - name: Checkout
       uses: actions/checkout@v4
       
@@ -53,8 +47,8 @@ jobs:
         # List of tags
         tags: |
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.${{ matrix.build }}
-        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.${{ matrix.build }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
         cache-to: type=inline
         
     - name: Analyze for critical and high CVEs
@@ -63,7 +57,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.${{ matrix.build }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
         sarif-file: sarif.output.json
         summary: true
     
