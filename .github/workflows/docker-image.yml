@@ -3,10 +3,28 @@ on:
   workflow_dispatch:
 env:
   DOCKER_IMAGE_NAME: docker.io/ndscprm/geoserver
-jobs:
+jobs:    
   build:
     runs-on: ubuntu-22.04
-    steps:
+    strategy:
+      max-parallel: 2
+      matrix:
+        version: [2.23, 2.24, 2.25]
+        # jvm: [11]
+        # os: [alpine, jammy]
+        include:
+          - version: 2.23
+            build: 4
+          - version: 2.23
+            build: 5
+          - version: 2.24
+            build: 2
+          - version: 2.24
+            build: 3
+          - version: 2.25
+            build: 0
+        
+    steps:     
     - name: Checkout
       uses: actions/checkout@v4
       
@@ -33,8 +51,10 @@ jobs:
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        tags: ${{ env.DOCKER_IMAGE_NAME }}:2.24.2,${{ env.DOCKER_IMAGE_NAME }}:2.24.2-temurin
-        cache-from: type=registry,ref=user/app:latest
+        tags: |
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.{{ matrix.build }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.{{ matrix.build }}
         cache-to: type=inline
         
     - name: Analyze for critical and high CVEs
@@ -43,7 +63,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:2.24.2 # ${{ steps.meta.outputs.tags }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}.{{ matrix.build }}
         sarif-file: sarif.output.json
         summary: true
     
