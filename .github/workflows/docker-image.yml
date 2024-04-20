@@ -17,7 +17,7 @@ jobs:
       id: datetime
       uses: Kaven-Universe/github-action-current-date-time@v1
       with:
-        format: "YYYY_MM_DD HH_mm_ss_SSS"
+        format: "YYYYMMDD-HHmmss"
         
     - name: Checkout
       uses: actions/checkout@v4
