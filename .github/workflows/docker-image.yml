@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     strategy:
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         version: [2.23.4, 2.23.5, 2.24.2, 2.24.3, 2.25.0]
         # jvm: [11]
