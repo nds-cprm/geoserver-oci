@@ -7,7 +7,7 @@
 # Java 17 -> >2.23
 ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-11
 ARG TOMCAT_IMAGE_TAG=9-jre11-temurin-jammy
-ARG GEOSERVER_VERSION=2.23.2
+ARG GEOSERVER_VERSION=2.24.2
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS BUILDER
 
@@ -40,6 +40,8 @@ FROM docker.io/library/tomcat:${TOMCAT_IMAGE_TAG} AS RELEASE
 
 ARG GEOSERVER_VERSION
 ARG GEOSERVER_DATA_DIR=/srv/geoserver/data
+ARG GEOSERVER_UID=10000
+ARG GEOSERVER_GID=10000
 
 LABEL org.opencontainers.image.title "GeoServer SGB/CPRM"
 LABEL org.opencontainers.image.description "Build de geoserver a partir do código fonte"
@@ -52,15 +54,26 @@ LABEL org.opencontainers.image.authors "Carlos Eduardo Mota <carlos.mota@sgb.gov
 COPY --from=BUILDER /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
 
 ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
-    JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx3G"
+    JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx3G" \
+    GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
 
 # Entrypoint
 COPY docker-entrypoint.sh /
 
 # Geoserver default data dir
-RUN chgrp -R 0 ./webapps/geoserver/data && \
-    chmod -R g=u ./webapps/geoserver/data && \
+RUN groupadd -g ${GEOSERVER_GID} geoserver && \
+    useradd -M -s /sbin/nologin -c "Geoserver" \
+        -u ${GEOSERVER_UID} -g ${GEOSERVER_GID} -N geoserver && \
+    mkdir -p ${GEOSERVER_DATA_DIR} && \
+    chgrp -R geoserver ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
+    chmod -R g=u ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
     chmod +x /docker-entrypoint.sh
+
+VOLUME [ "${GEOSERVER_DATA_DIR}" ]
+
+USER geoserver
+
+WORKDIR ${GEOSERVER_DATA_DIR}
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

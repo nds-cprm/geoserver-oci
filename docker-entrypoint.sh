@@ -12,13 +12,23 @@ GEOSERVER_OPTS="-XX:PerfDataSamplingInterval=500 \
     -XX:+CMSClassUnloadingEnabled \
     -Dorg.geotools.referencing.forceXY=true \
     -Dorg.geotools.shapefile.datetime=true \
-    -Dgeoserver.login.autocomplete=off \
-    -DGEOSERVER_CONSOLE_DISABLED=${GEOSERVER_CONSOLE_DISABLED:-FALSE}"
+    -Dgeoserver.login.autocomplete=off"
 
 # TODO: Parametrizar CORS
 # https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
 
 # TODO: Parametrizar JMS Cluster
+
+# Geoserver Data dir
+GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}"
+
+# Geoserver Interface
+GEOSERVER_CONSOLE_DISABLED=${GEOSERVER_CONSOLE_DISABLED:-FALSE}
+
+if [[ "$GEOSERVER_CONSOLE_DISABLED" == "FALSE" ]]
+then
+    GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOSERVER_CONSOLE_DISABLED=${GEOSERVER_CONSOLE_DISABLED}"
+fi
 
 # CSRF Whitelist
 GEOSERVER_CSRF_DISABLED=${GEOSERVER_CSRF_DISABLED:-FALSE}
@@ -57,4 +67,7 @@ then
     GEOSERVER_OPTS="$GEOSERVER_OPTS -Dapp-schema.properties=$GEOSERVER_APPSCHEMA_PROPERTIES_FILE"
 fi
 
-exec env CATALINA_OPTS="${CATALINA_OPTS} ${GEOSERVER_OPTS}" "$@"
+export CATALINA_OPTS="${CATALINA_OPTS} ${GEOSERVER_OPTS}"
+
+exec "$@"
+
