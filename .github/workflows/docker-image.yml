@@ -3,10 +3,22 @@ on:
   workflow_dispatch:
 env:
   DOCKER_IMAGE_NAME: docker.io/ndscprm/geoserver
-jobs:
+jobs:    
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 1
+      matrix:
+        version: [2.23.4, 2.23.5, 2.24.2, 2.24.3, 2.25.0]
+        # jvm: [11]
+        # os: [alpine, jammy]        
     steps:
+    - name: Current DateTime
+      id: datetime
+      uses: Kaven-Universe/github-action-current-date-time@v1
+      with:
+        format: "YYYYMMDD-HHmmss"
+        
     - name: Checkout
       uses: actions/checkout@v4
       
@@ -28,13 +40,17 @@ jobs:
         context: .
         # Path to the Dockerfile
         file: Dockerfile
+        build-args: |
+          GEOSERVER_VERSION=${{ matrix.version }}
         # Always attempt to pull all referenced images
         pull: true
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        tags: ${{ env.DOCKER_IMAGE_NAME }}:2.24.2,${{ env.DOCKER_IMAGE_NAME }}:2.24.2-temurin
-        cache-from: type=registry,ref=user/app:latest
+        tags: |
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
         cache-to: type=inline
         
     - name: Analyze for critical and high CVEs
@@ -43,7 +59,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:2.24.2 # ${{ steps.meta.outputs.tags }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
         sarif-file: sarif.output.json
         summary: true
     
