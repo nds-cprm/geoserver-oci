@@ -54,7 +54,6 @@ LABEL org.opencontainers.image.authors "Carlos Eduardo Mota <carlos.mota@sgb.gov
 COPY --from=BUILDER /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
 
 ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
-    JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx3G" \
     GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
 
 # Entrypoint

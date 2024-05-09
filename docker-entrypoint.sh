@@ -1,18 +1,26 @@
 #!/bin/bash
 set -ef -o pipefail
 
-GEOSERVER_OPTS="-XX:PerfDataSamplingInterval=500 \
-    -XX:SoftRefLRUPolicyMSPerMB=36000 \
-    -XX:NewRatio=2 \
-    -XX:+UseG1GC \
-    -XX:MaxGCPauseMillis=200 \
-    -XX:ParallelGCThreads=20 \
-    -XX:ConcGCThreads=5 \
-    -XX:InitiatingHeapOccupancyPercent=70 \
-    -XX:+CMSClassUnloadingEnabled \
-    -Dorg.geotools.referencing.forceXY=true \
-    -Dorg.geotools.shapefile.datetime=true \
-    -Dgeoserver.login.autocomplete=off"
+if [[ -z "$JAVA_OPTS" ]]
+then
+    export JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx4G"
+fi
+
+if [[ -z "$GEOSERVER_OPTS" ]]
+then
+    GEOSERVER_OPTS="-XX:PerfDataSamplingInterval=500 \
+        -XX:SoftRefLRUPolicyMSPerMB=36000 \
+        -XX:NewRatio=2 \
+        -XX:+UseG1GC \
+        -XX:MaxGCPauseMillis=200 \
+        -XX:ParallelGCThreads=20 \
+        -XX:ConcGCThreads=5 \
+        -XX:InitiatingHeapOccupancyPercent=70 \
+        -XX:+CMSClassUnloadingEnabled \
+        -Dorg.geotools.referencing.forceXY=true \
+        -Dorg.geotools.shapefile.datetime=true \
+        -Dgeoserver.login.autocomplete=off"
+fi
 
 # TODO: Parametrizar CORS
 # https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
@@ -70,4 +78,3 @@ fi
 export CATALINA_OPTS="${CATALINA_OPTS} ${GEOSERVER_OPTS}"
 
 exec "$@"
-
