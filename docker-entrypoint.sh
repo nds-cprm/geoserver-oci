@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ef -o pipefail
 
+ln -sf "$GEOSERVER_DATA_DIR" ~/data
+
 if [[ -z "$JAVA_OPTS" ]]
 then
     export JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx4G"
@@ -63,6 +65,7 @@ then
     if [[ -e "$GEOWEBCACHE_CACHE_DIR" && -w "$GEOWEBCACHE_CACHE_DIR" ]]
     then
         GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOWEBCACHE_CACHE_DIR=$GEOWEBCACHE_CACHE_DIR"
+        ln -sf "$GEOWEBCACHE_CACHE_DIR" ~/gwc
     else
         echo "The directory $GEOWEBCACHE_CACHE_DIR is not writable by user"
         exit 1

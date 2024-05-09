@@ -61,7 +61,7 @@ COPY docker-entrypoint.sh /
 
 # Geoserver default data dir
 RUN groupadd -g ${GEOSERVER_GID} geoserver && \
-    useradd -M -s /sbin/nologin -c "Geoserver" \
+    useradd -m -d /var/lib/geoserver -s /sbin/nologin -c "Geoserver" \
         -u ${GEOSERVER_UID} -g ${GEOSERVER_GID} -N geoserver && \
     mkdir -p ${GEOSERVER_DATA_DIR} && \
     chgrp -R geoserver ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
@@ -72,7 +72,9 @@ VOLUME [ "${GEOSERVER_DATA_DIR}" ]
 
 USER geoserver
 
-WORKDIR ${GEOSERVER_DATA_DIR}
+WORKDIR /var/lib/geoserver
+
+RUN mkdir .fonts
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
