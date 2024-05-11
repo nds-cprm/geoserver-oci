@@ -74,7 +74,7 @@ USER geoserver
 
 WORKDIR /var/lib/geoserver
 
-RUN mkdir .fonts
+RUN mkdir .fonts backups
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
