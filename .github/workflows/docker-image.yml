@@ -1,6 +1,8 @@
 name: Docker Image CI
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 2 5 * *"
 env:
   DOCKER_IMAGE_NAME: docker.io/ndscprm/geoserver
 jobs:    
