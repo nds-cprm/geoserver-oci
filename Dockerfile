@@ -59,6 +59,9 @@ ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
 # Entrypoint
 COPY docker-entrypoint.sh /
 
+# web.xml CORS enabled
+COPY assets/web.xml ./webapps/geoserver/WEB-INF/
+
 # Geoserver default data dir
 RUN groupadd -g ${GEOSERVER_GID} geoserver && \
     useradd -m -d /var/lib/geoserver -s /sbin/nologin -c "Geoserver" \
