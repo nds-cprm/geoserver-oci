@@ -24,8 +24,9 @@ then
         -Dgeoserver.login.autocomplete=off"
 fi
 
-# TODO: Parametrizar CORS
-# https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
+# CORS
+GEOSERVER_WEB_XML_FILE=/usr/local/tomcat/webapps/geoserver/WEB-INF/web.xml
+envsubst < "$GEOSERVER_WEB_XML_FILE.envsubst" > $GEOSERVER_WEB_XML_FILE
 
 # TODO: Parametrizar JMS Cluster
 

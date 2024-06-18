@@ -50,6 +50,13 @@ LABEL org.opencontainers.image.version "${GEOSERVER_VERSION}"
 LABEL org.opencontainers.image.source "https://github.com/nds-cprm/geoserver-oci"
 LABEL org.opencontainers.image.authors "Carlos Eduardo Mota <carlos.mota@sgb.gov.br>"
 
+# base libs
+RUN apt-get -y update && \
+    apt-get install -y --no-install-recommends --no-install-suggests \
+        gettext-base && \
+    apt-get -y autoremove && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy built
 COPY --from=BUILDER /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
 
@@ -70,6 +77,16 @@ RUN groupadd -g ${GEOSERVER_GID} geoserver && \
     chgrp -R geoserver ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
     chmod -R g=u ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
     chmod +x /docker-entrypoint.sh
+
+# CORS
+# https://tomcat.apache.org/tomcat-9.0-doc/config/filter.html#CORS_Filter
+# https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
+ENV GEOSERVER_CORS_ALLOWED_ORIGINS=""
+
+COPY assets/web.xml.envsubst ./webapps/geoserver/WEB-INF/
+
+RUN touch ./webapps/geoserver/WEB-INF/web.xml && \
+    chown geoserver:geoserver ./webapps/geoserver/WEB-INF/web.xml
 
 VOLUME [ "${GEOSERVER_DATA_DIR}" ]
 
