@@ -33,6 +33,7 @@ Autor: Carlos Eduardo Mota
     -Dorg.geotools.shapefile.datetime=true \
     -Dgeoserver.login.autocomplete=off"
 - GEOSERVER_CONSOLE_DISABLED=FALSE
+- GEOSERVER_CORS_ALLOWED_ORIGINS=""
 - GEOSERVER_CSRF_DISABLED=TRUE
 - GEOSERVER_DISABLE_MARLIN=FALSE
 - GEOWEBCACHE_CACHE_DIR=""
