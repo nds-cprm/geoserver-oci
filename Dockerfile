@@ -9,14 +9,14 @@ ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-11
 ARG TOMCAT_IMAGE_TAG=9-jre11-temurin-jammy
 ARG GEOSERVER_VERSION=2.24.2
 
-FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS BUILDER
+FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS builder
 
 ARG GEOSERVER_VERSION
 ARG GEOSERVER_GIT_URL=https://github.com/geoserver/geoserver.git
 ARG MAVEN_OPTS="-Xmx512M"
 ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow
 
-ENV MAVEN_OPTS ${MAVEN_OPTS}
+ENV MAVEN_OPTS=${MAVEN_OPTS}
 
 WORKDIR /root
 
@@ -36,19 +36,19 @@ RUN mvn -DskipTests clean install \
     mv install.log ./web/app/target/geoserver/install.log
 
 
-FROM docker.io/library/tomcat:${TOMCAT_IMAGE_TAG} AS RELEASE
+FROM docker.io/library/tomcat:${TOMCAT_IMAGE_TAG} AS release
 
 ARG GEOSERVER_VERSION
 ARG GEOSERVER_DATA_DIR=/srv/geoserver/data
 ARG GEOSERVER_UID=10000
 ARG GEOSERVER_GID=10000
 
-LABEL org.opencontainers.image.title "GeoServer SGB/CPRM"
-LABEL org.opencontainers.image.description "Build de geoserver a partir do código fonte"
-LABEL org.opencontainers.image.vendor "SGB/CPRM"
-LABEL org.opencontainers.image.version "${GEOSERVER_VERSION}"
-LABEL org.opencontainers.image.source "https://github.com/nds-cprm/geoserver-oci"
-LABEL org.opencontainers.image.authors "Carlos Eduardo Mota <carlos.mota@sgb.gov.br>"
+LABEL org.opencontainers.image.title="GeoServer SGB/CPRM"
+LABEL org.opencontainers.image.description="Build de geoserver a partir do código fonte"
+LABEL org.opencontainers.image.vendor="SGB/CPRM"
+LABEL org.opencontainers.image.version="${GEOSERVER_VERSION}"
+LABEL org.opencontainers.image.source="https://github.com/nds-cprm/geoserver-oci"
+LABEL org.opencontainers.image.authors="Carlos Eduardo Mota <carlos.mota@sgb.gov.br>"
 
 # base libs
 RUN apt-get -y update && \
@@ -58,7 +58,7 @@ RUN apt-get -y update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy built
-COPY --from=BUILDER /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
+COPY --from=builder /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
 
 ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
     GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
@@ -80,7 +80,7 @@ RUN groupadd -g ${GEOSERVER_GID} geoserver && \
 # https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
 ENV GEOSERVER_CORS_ALLOWED_ORIGINS=""
 
-COPY assets/web.xml.envsubst ./webapps/geoserver/WEB-INF/
+COPY templates/web.xml.envsubst ./webapps/geoserver/WEB-INF/
 
 RUN touch ./webapps/geoserver/WEB-INF/web.xml && \
     chown geoserver:geoserver ./webapps/geoserver/WEB-INF/web.xml
