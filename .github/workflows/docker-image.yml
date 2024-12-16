@@ -11,7 +11,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [2.24.4, 2.24.5, 2.25.2, 2.25.3, 2.26.0]
+        version: [2.24.4, 2.24.5, 2.25.3, 2.25.4, 2.26.0, 2.26.1]
         # jvm: [11]
         # os: [alpine, jammy]        
     steps:
