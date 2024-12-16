@@ -1,27 +1,29 @@
 #!/bin/bash
-set -ef -o pipefail
-
-ln -sf "$GEOSERVER_DATA_DIR" ~/data
+set -ef -o pipefail        
 
 if [[ -z "$JAVA_OPTS" ]]
 then
     export JAVA_OPTS="-server -Djava.awt.headless=true -Xms2G -Xmx4G"
 fi
 
-if [[ -z "$GEOSERVER_OPTS" ]]
-then
-    GEOSERVER_OPTS="-XX:PerfDataSamplingInterval=500 \
+if [[ -z "$CATALINA_OPTS" ]]
+then 
+    CATALINA_OPTS="-XX:PerfDataSamplingInterval=500 \
         -XX:SoftRefLRUPolicyMSPerMB=36000 \
         -XX:NewRatio=2 \
         -XX:+UseG1GC \
-        -XX:MaxGCPauseMillis=200 \
-        -XX:ParallelGCThreads=20 \
-        -XX:ConcGCThreads=5 \
+        -XX:+UseStringDeduplication \
         -XX:InitiatingHeapOccupancyPercent=70 \
-        -XX:+CMSClassUnloadingEnabled \
+        -XX:+CMSClassUnloadingEnabled"
+fi
+
+if [[ -z "$GEOSERVER_OPTS" ]]
+then
+    GEOSERVER_OPTS="-XX:PerfDataSamplingInterval=500 \
         -Dorg.geotools.referencing.forceXY=true \
         -Dorg.geotools.shapefile.datetime=true \
-        -Dgeoserver.login.autocomplete=off"
+        -Dgeoserver.login.autocomplete=off \
+        -Doracle.jdbc.timezoneAsRegion=false"
 fi
 
 # CORS
@@ -66,7 +68,6 @@ then
     if [[ -e "$GEOWEBCACHE_CACHE_DIR" && -w "$GEOWEBCACHE_CACHE_DIR" ]]
     then
         GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOWEBCACHE_CACHE_DIR=$GEOWEBCACHE_CACHE_DIR"
-        ln -sf "$GEOWEBCACHE_CACHE_DIR" ~/gwc
     else
         echo "The directory $GEOWEBCACHE_CACHE_DIR is not writable by user"
         exit 1

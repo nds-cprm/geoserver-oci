@@ -7,14 +7,14 @@
 # Java 17 -> >2.23
 ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-11
 ARG TOMCAT_IMAGE_TAG=9-jre11-temurin-jammy
-ARG GEOSERVER_VERSION=2.24.2
+ARG GEOSERVER_VERSION=2.24.4
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS builder
 
 ARG GEOSERVER_VERSION
 ARG GEOSERVER_GIT_URL=https://github.com/geoserver/geoserver.git
 ARG MAVEN_OPTS="-Xmx512M"
-ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow
+ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow,elasticsearch
 
 ENV MAVEN_OPTS=${MAVEN_OPTS}
 
@@ -40,8 +40,6 @@ FROM docker.io/library/tomcat:${TOMCAT_IMAGE_TAG} AS release
 
 ARG GEOSERVER_VERSION
 ARG GEOSERVER_DATA_DIR=/srv/geoserver/data
-ARG GEOSERVER_UID=10000
-ARG GEOSERVER_GID=10000
 
 LABEL org.opencontainers.image.title="GeoServer SGB/CPRM"
 LABEL org.opencontainers.image.description="Build de geoserver a partir do código fonte"
@@ -67,11 +65,7 @@ ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
 COPY docker-entrypoint.sh /
 
 # Geoserver default data dir
-RUN groupadd -g ${GEOSERVER_GID} geoserver && \
-    useradd -m -d /var/lib/geoserver -s /sbin/nologin -c "Geoserver" \
-        -u ${GEOSERVER_UID} -g ${GEOSERVER_GID} -N geoserver && \
-    mkdir -p ${GEOSERVER_DATA_DIR} && \
-    chgrp -R geoserver ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
+RUN mkdir -p ${GEOSERVER_DATA_DIR} && \
     chmod -R g=u ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
     chmod +x /docker-entrypoint.sh
 
@@ -83,15 +77,9 @@ ENV GEOSERVER_CORS_ALLOWED_ORIGINS=""
 COPY templates/web.xml.envsubst ./webapps/geoserver/WEB-INF/
 
 RUN touch ./webapps/geoserver/WEB-INF/web.xml && \
-    chown geoserver:geoserver ./webapps/geoserver/WEB-INF/web.xml
+    chmod g=u ./webapps/geoserver/WEB-INF/web.xml
 
 VOLUME [ "${GEOSERVER_DATA_DIR}" ]
-
-USER geoserver
-
-WORKDIR /var/lib/geoserver
-
-RUN mkdir .fonts backups
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
