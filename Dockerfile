@@ -72,7 +72,7 @@ RUN mkdir -p ${GEOSERVER_DATA_DIR} && \
 # CORS
 # https://tomcat.apache.org/tomcat-9.0-doc/config/filter.html#CORS_Filter
 # https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
-ENV GEOSERVER_CORS_ALLOWED_ORIGINS=""
+ENV GEOSERVER_CORS_ALLOWED_ORIGINS="*"
 
 COPY templates/web.xml.envsubst ./webapps/geoserver/WEB-INF/
 
