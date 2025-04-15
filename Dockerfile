@@ -1,12 +1,12 @@
 # https://docs.geoserver.org/2.19.x/en/developer/index.html
 # https://docs.geoserver.org/2.19.x/en/developer/maven-guide/index.html
+# https://docs.geoserver.org/latest/en/user/production/java.html#running-on-java-17
 
-# https://geoserver.org/download/
-# Java 8 -> 2.9 a 2.22
-# Java 11 -> 2.15 a 2.23
+# https://docs.geoserver.org/latest/en/user/production/java.html#use-supported-jre
+# Java 11 -> >2.15
 # Java 17 -> >2.23
-ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-11
-ARG TOMCAT_IMAGE_TAG=9-jre11-temurin-jammy
+ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-17
+ARG TOMCAT_IMAGE_TAG=9-jre17-temurin-jammy
 ARG GEOSERVER_VERSION=2.24.4
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS builder

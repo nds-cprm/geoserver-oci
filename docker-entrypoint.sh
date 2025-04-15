@@ -13,8 +13,7 @@ then
         -XX:NewRatio=2 \
         -XX:+UseG1GC \
         -XX:+UseStringDeduplication \
-        -XX:InitiatingHeapOccupancyPercent=70 \
-        -XX:+CMSClassUnloadingEnabled"
+        -XX:InitiatingHeapOccupancyPercent=70"
 fi
 
 if [[ -z "$GEOSERVER_OPTS" ]]
