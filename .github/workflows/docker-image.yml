@@ -11,8 +11,8 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [2.24.4, 2.24.5, 2.25.3, 2.25.4, 2.26.0, 2.26.1]
-        # jvm: [11]
+        version: [2.24.4, 2.24.5, 2.25.5, 2.25.6, 2.26.1, 2.26.2, 2.27.0]
+        jvm: [11, 17]
         # os: [alpine, jammy]        
     steps:
     - name: Current DateTime
@@ -43,7 +43,9 @@ jobs:
         # Path to the Dockerfile
         file: Dockerfile
         build-args: |
-          GEOSERVER_VERSION=${{ matrix.version }}
+          GEOSERVER_VERSION=${{ matrix.version }} 
+          ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-${{ matrix.jvm }}
+          ARG TOMCAT_IMAGE_TAG=9-jre${{ matrix.jvm }}-temurin-jammy 
         # Always attempt to pull all referenced images
         pull: true
         # Push is a shorthand for --output=type=registry
@@ -51,6 +53,7 @@ jobs:
         # List of tags
         tags: |
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
         cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
         cache-to: type=inline
