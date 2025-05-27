@@ -52,10 +52,10 @@ jobs:
         push: true
         # List of tags
         tags: |
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}-${{ steps.datetime.outputs.time }}
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
-        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}-${{ steps.datetime.outputs.time }}
         cache-to: type=inline
         platforms: linux/amd64,linux/arm64
         
@@ -65,7 +65,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-${{ steps.datetime.outputs.time }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}-${{ steps.datetime.outputs.time }}
         sarif-file: sarif.output.json
         summary: true
     
