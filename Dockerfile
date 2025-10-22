@@ -7,14 +7,14 @@
 # Java 17 -> >2.23
 ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-17
 ARG TOMCAT_IMAGE_TAG=9-jre17-temurin-jammy
-ARG GEOSERVER_VERSION=2.24.4
+ARG GEOSERVER_VERSION=2.27.1
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS builder
 
 ARG GEOSERVER_VERSION
 ARG GEOSERVER_GIT_URL=https://github.com/geoserver/geoserver.git
 ARG MAVEN_OPTS="-Xmx512M"
-ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow,elasticsearch
+ARG GEOSERVER_EXTENSIONS=oracle,sqlserver,excel,app-schema,importer,jms-cluster,backup-restore,control-flow,elasticsearch,wps,wps-download
 
 ENV MAVEN_OPTS=${MAVEN_OPTS}
 
