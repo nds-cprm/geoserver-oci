@@ -11,8 +11,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [2.26.1, 2.26.2, 2.26.3, 2.26.4, 2.27.0, 2.27.1]
-        jvm: [11, 17]
+        version: [2.26.3, 2.26.4, 2.27.2, 2.27.3]
         # os: [alpine, jammy]        
     steps:
     - name: Current DateTime
@@ -43,19 +42,18 @@ jobs:
         # Path to the Dockerfile
         file: Dockerfile
         build-args: |
+          JAVA_MAJOR_VERSION=11
           GEOSERVER_VERSION=${{ matrix.version }} 
-          MAVEN_IMAGE_TAG=3.8-eclipse-temurin-${{ matrix.jvm }}
-          TOMCAT_IMAGE_TAG=9-jre${{ matrix.jvm }}-temurin-jammy 
         # Always attempt to pull all referenced images
         pull: true
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
         tags: |
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}-${{ steps.datetime.outputs.time }}
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11-${{ steps.datetime.outputs.time }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
-        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}-${{ steps.datetime.outputs.time }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11-${{ steps.datetime.outputs.time }}
         cache-to: type=inline
         platforms: linux/amd64,linux/arm64
         
@@ -65,7 +63,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java${{ matrix.jvm }}-${{ steps.datetime.outputs.time }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11-${{ steps.datetime.outputs.time }}
         sarif-file: sarif.output.json
         summary: true
     
