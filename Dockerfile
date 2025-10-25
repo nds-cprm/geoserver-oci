@@ -1,10 +1,5 @@
-# https://docs.geoserver.org/2.19.x/en/developer/index.html
-# https://docs.geoserver.org/2.19.x/en/developer/maven-guide/index.html
-# https://docs.geoserver.org/latest/en/user/production/java.html#running-on-java-17
-
-# https://docs.geoserver.org/latest/en/user/production/java.html#use-supported-jre
-# Java 11 -> >2.15
-# Java 17 -> >2.23
+# https://docs.geoserver.org/main/en/user/production/index.html
+# https://docs.geoserver.org/main/en/user/production/java.html
 ARG JAVA_MAJOR_VERSION=11
 ARG GEOSERVER_VERSION=2.27.3
 
