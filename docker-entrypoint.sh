@@ -35,6 +35,10 @@ rm -rf /tmp/web.xml
 
 # TODO: Parametrizar JMS Cluster
 
+# Copy
+echo "Copying Geoserver default config if empty"
+find ./webapps/geoserver/data -maxdepth 1 -type f -name "*.xml" | xargs cp -t $GEOSERVER_DATA_DIR
+
 # Geoserver Data dir
 GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}"
 
