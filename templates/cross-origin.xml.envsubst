@@ -1,0 +1,23 @@
+<!-- Uncomment following filter-mapping to enable CORS -->
+<filter-mapping>
+    <filter-name>cross-origin</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+<!-- Enable CORS in Tomcat. -->
+<filter>
+    <filter-name>cross-origin</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+        <param-name>cors.allowed.origins</param-name>
+        <param-value>$GEOSERVER_CORS_ALLOWED_ORIGINS</param-value>
+    </init-param>
+    <init-param>
+        <param-name>cors.allowed.methods</param-name>
+        <param-value>GET,POST,PUT,DELETE,HEAD,OPTIONS</param-value>
+    </init-param>
+    <init-param>
+        <param-name>cors.allowed.headers</param-name>
+        <param-value>*</param-value>
+    </init-param>
+</filter>

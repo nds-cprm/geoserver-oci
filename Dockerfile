@@ -5,9 +5,11 @@
 # https://docs.geoserver.org/latest/en/user/production/java.html#use-supported-jre
 # Java 11 -> >2.15
 # Java 17 -> >2.23
-ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-17
-ARG TOMCAT_IMAGE_TAG=9-jre17-temurin-jammy
-ARG GEOSERVER_VERSION=2.27.1
+ARG JAVA_MAJOR_VERSION=11
+ARG GEOSERVER_VERSION=2.27.3
+
+ARG MAVEN_IMAGE_TAG=3.8-eclipse-temurin-${JAVA_MAJOR_VERSION}
+ARG TOMCAT_IMAGE_TAG=9-jre${JAVA_MAJOR_VERSION}-temurin-jammy
 
 FROM docker.io/library/maven:${MAVEN_IMAGE_TAG} AS builder
 
@@ -65,8 +67,8 @@ ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
 COPY docker-entrypoint.sh /
 
 # Geoserver default data dir
-RUN mkdir -p ${GEOSERVER_DATA_DIR} && \
-    chmod -R g=u ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} && \
+RUN mkdir -p ${GEOSERVER_DATA_DIR} /usr/local/tomcat/conf/Catalina/localhost && \
+    chmod -R g=u ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} /usr/local/tomcat/conf/Catalina/localhost && \
     chmod +x /docker-entrypoint.sh
 
 # CORS
@@ -74,7 +76,7 @@ RUN mkdir -p ${GEOSERVER_DATA_DIR} && \
 # https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
 ENV GEOSERVER_CORS_ALLOWED_ORIGINS="*"
 
-COPY templates/web.xml.envsubst ./webapps/geoserver/WEB-INF/
+COPY templates ./webapps/geoserver/WEB-INF/templates
 
 RUN touch ./webapps/geoserver/WEB-INF/web.xml && \
     chmod g=u ./webapps/geoserver/WEB-INF/web.xml

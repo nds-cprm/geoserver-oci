@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ef -o pipefail        
+set -ef -o pipefail
 
 if [[ -z "$JAVA_OPTS" ]]
 then
@@ -26,8 +26,10 @@ then
 fi
 
 # CORS
-GEOSERVER_WEB_XML_FILE=/usr/local/tomcat/webapps/geoserver/WEB-INF/web.xml
-envsubst < "$GEOSERVER_WEB_XML_FILE.envsubst" > $GEOSERVER_WEB_XML_FILE
+# # Geoserver >= 2.27: https://discourse.osgeo.org/t/org-geoserver-filters-xframeoptionsfilter-lost/146457
+TPL=$(envsubst < webapps/geoserver/WEB-INF/templates/cross-origin.xml.envsubst)
+sed -i "/<\/web-app>/i $(echo $TPL)" webapps/geoserver/WEB-INF/web.xml
+unset TPL
 
 # TODO: Parametrizar JMS Cluster
 
