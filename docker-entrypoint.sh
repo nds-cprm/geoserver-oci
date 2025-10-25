@@ -28,8 +28,10 @@ fi
 # CORS
 # # Geoserver >= 2.27: https://discourse.osgeo.org/t/org-geoserver-filters-xframeoptionsfilter-lost/146457
 TPL=$(envsubst < webapps/geoserver/WEB-INF/templates/cross-origin.xml.envsubst)
-sed -i "/<\/web-app>/i $(echo $TPL)" webapps/geoserver/WEB-INF/web.xml
+sed "/<\/web-app>/i $(echo $TPL)" webapps/geoserver/WEB-INF/web.xml > /tmp/web.xml
 unset TPL
+cp /tmp/web.xml webapps/geoserver/WEB-INF/web.xml
+rm -rf /tmp/web.xml
 
 # TODO: Parametrizar JMS Cluster
 
