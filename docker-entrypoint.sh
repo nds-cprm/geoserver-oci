@@ -27,17 +27,17 @@ fi
 
 # CORS
 # # Geoserver >= 2.27: https://discourse.osgeo.org/t/org-geoserver-filters-xframeoptionsfilter-lost/146457
-TPL=$(envsubst < webapps/geoserver/WEB-INF/templates/cross-origin.xml.envsubst)
-sed "/<\/web-app>/i $(echo $TPL)" webapps/geoserver/WEB-INF/web.xml > /tmp/web.xml
+TPL=$(envsubst < webapps.dist/geoserver/WEB-INF/templates/cross-origin.xml.envsubst)
+sed "/<\/web-app>/i $(echo $TPL)" webapps.dist/geoserver/WEB-INF/web.xml > /tmp/web.xml
 unset TPL
-cp /tmp/web.xml webapps/geoserver/WEB-INF/web.xml
+cp /tmp/web.xml webapps.dist/geoserver/WEB-INF/web.xml
 rm -rf /tmp/web.xml
 
 # TODO: Parametrizar JMS Cluster
 
 # Copy
 echo "Copying Geoserver default config if empty"
-find ./webapps/geoserver/data -maxdepth 1 -type f -name "*.xml" | xargs cp -t $GEOSERVER_DATA_DIR
+find ./webapps.dist/geoserver/data -maxdepth 1 -type f -name "*.xml" | xargs cp -t $GEOSERVER_DATA_DIR
 
 # Geoserver Data dir
 GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}"
@@ -65,7 +65,7 @@ GEOSERVER_DISABLE_MARLIN=${GEOSERVER_DISABLE_MARLIN:-false}
 if [[ "$GEOSERVER_DISABLE_MARLIN" == "false" ]]
 then
     GEOSERVER_OPTS="$GEOSERVER_OPTS \
-        -Xbootclasspath/a:$(find $CATALINA_HOME/webapps/geoserver -name marlin*.jar -print -quit)\
+        -Xbootclasspath/a:$(find $CATALINA_HOME/webapps.dist/geoserver -name marlin*.jar -print -quit)\
         -Dsun.java2d.renderer=org.marlin.pisces.MarlinRenderingEngine"
 fi
 
@@ -88,5 +88,8 @@ then
 fi
 
 export CATALINA_OPTS="${CATALINA_OPTS} ${GEOSERVER_OPTS}"
+
+# Add context URL
+echo "<Context docBase=\"$CATALINA_HOME/webapps.dist/geoserver\" />" > ./conf/Catalina/localhost/$GEOSERVER_CONTEXT_PATH.xml
 
 exec "$@"

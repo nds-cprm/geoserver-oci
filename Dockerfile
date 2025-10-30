@@ -53,7 +53,7 @@ RUN apt-get -y update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy built
-COPY --from=builder /root/geoserver/src/web/app/target/geoserver/ ./webapps/geoserver/
+COPY --from=builder /root/geoserver/src/web/app/target/geoserver/ ./webapps.dist/geoserver/
 
 ENV GEOSERVER_VERSION=${GEOSERVER_VERSION} \
     GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
@@ -63,18 +63,19 @@ COPY docker-entrypoint.sh /
 
 # Geoserver default data dir
 RUN mkdir -p ${GEOSERVER_DATA_DIR} /usr/local/tomcat/conf/Catalina/localhost && \
-    chmod -R g=u ./webapps/geoserver/data ${GEOSERVER_DATA_DIR} /usr/local/tomcat/conf/Catalina/localhost && \
+    chmod -R g=u ./webapps.dist/geoserver/data ${GEOSERVER_DATA_DIR} /usr/local/tomcat/conf/Catalina/localhost && \
     chmod +x /docker-entrypoint.sh
 
 # CORS
 # https://tomcat.apache.org/tomcat-9.0-doc/config/filter.html#CORS_Filter
 # https://docs.geoserver.org/main/en/user/production/container.html#enable-cors-for-tomcat
 ENV GEOSERVER_CORS_ALLOWED_ORIGINS="*"
+ENV GEOSERVER_CONTEXT_PATH=/geoserver
 
-COPY templates ./webapps/geoserver/WEB-INF/templates
+COPY templates ./webapps.dist/geoserver/WEB-INF/templates
 
-RUN touch ./webapps/geoserver/WEB-INF/web.xml && \
-    chmod g=u ./webapps/geoserver/WEB-INF/web.xml
+RUN touch ./webapps.dist/geoserver/WEB-INF/web.xml && \
+    chmod g=u ./webapps.dist/geoserver/WEB-INF/web.xml
 
 VOLUME [ "${GEOSERVER_DATA_DIR}" ]
 
