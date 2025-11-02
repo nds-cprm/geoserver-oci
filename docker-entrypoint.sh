@@ -33,7 +33,34 @@ unset TPL
 cp /tmp/web.xml webapps.dist/geoserver/WEB-INF/web.xml
 rm -rf /tmp/web.xml
 
-# TODO: Parametrizar JMS Cluster
+# JMS Cluster
+if [[ -z "$CLUSTER_CONFIG_DIR" ]]
+then
+    CLUSTER_CONFIG_DIR=$GEOSERVER_DATA_DIR/cluster
+
+    if [[ ! -d "$CLUSTER_CONFIG_DIR" ]]
+    then
+        mkdir -p $CLUSTER_CONFIG_DIR
+    fi
+fi
+
+CLUSTER_CONFIG_PROPERTIES="$CLUSTER_CONFIG_DIR/cluster.properties"
+
+export CLUSTER_CONFIG_READONLY=${CLUSTER_CONFIG_READONLY:-disabled}
+export CLUSTER_CONFIG_DURABLE=${CLUSTER_CONFIG_DURABLE:-false}
+export CLUSTER_CONFIG_EMBEDDED_BROKER=${CLUSTER_CONFIG_EMBEDDED_BROKER:-disabled}
+export CLUSTER_CONFIG_CONNECTION_RETRY=${CLUSTER_CONFIG_CONNECTION_RETRY:-10}
+export CLUSTER_CONFIG_TOGGLE_MASTER=${CLUSTER_CONFIG_TOGGLE_MASTER:-false}
+export CLUSTER_CONFIG_CONNECTION=${CLUSTER_CONFIG_CONNECTION:-disabled}
+export CLUSTER_CONFIG_TOGGLE_SLAVE=${CLUSTER_CONFIG_TOGGLE_SLAVE:-false}
+export CLUSTER_CONFIG_CONNECTION_MAXWAIT=${CLUSTER_CONFIG_CONNECTION_MAXWAIT:-500}
+
+envsubst < webapps.dist/geoserver/WEB-INF/templates/cluster.properties.envsubst > $CLUSTER_CONFIG_PROPERTIES
+
+if [[ -n "$CLUSTER_CONFIG_INSTANCE_NAME" ]]
+then
+    echo instanceName=${CLUSTER_CONFIG_INSTANCE_NAME} >> $CLUSTER_CONFIG_PROPERTIES
+fi
 
 # Copy
 echo "Copying Geoserver default config if empty"

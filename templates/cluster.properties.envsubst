@@ -1,0 +1,14 @@
+# Cluster config dir
+readOnly=${CLUSTER_CONFIG_READONLY}
+durable=${CLUSTER_CONFIG_DURABLE}
+brokerURL=${CLUSTER_CONFIG_BROKER_URL}
+embeddedBroker=${CLUSTER_CONFIG_EMBEDDED_BROKER}
+connection.retry=${CLUSTER_CONFIG_CONNECTION_RETRY}
+toggleMaster=${CLUSTER_CONFIG_TOGGLE_MASTER}
+xbeanURL=./broker.xml
+embeddedBrokerProperties=embedded-broker.properties
+topicName=VirtualTopic.geoserver
+connection=${CLUSTER_CONFIG_CONNECTION}
+toggleSlave=${CLUSTER_CONFIG_TOGGLE_SLAVE}
+connection.maxwait=${CLUSTER_CONFIG_CONNECTION_MAXWAIT}
+group=geoserver-cluster
