@@ -25,8 +25,19 @@ then
         -Doracle.jdbc.timezoneAsRegion=false"
 fi
 
+# Geoserver Data dir
+GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}"
+
+# Copy Geoserver Data dir if not exists
+
+if [[ $(ls -A "$GEOSERVER_DATA_DIR" | wc -l) -eq 0 ]]
+then
+    echo "GEOSERVER_DATA_DIR is empty. Now copying default config..."
+    find ./webapps.dist/geoserver/data -maxdepth 1 -type f -name "*.xml" | xargs cp -vt $GEOSERVER_DATA_DIR
+fi
+
 # CORS
-# # Geoserver >= 2.27: https://discourse.osgeo.org/t/org-geoserver-filters-xframeoptionsfilter-lost/146457
+# Geoserver >= 2.27: https://discourse.osgeo.org/t/org-geoserver-filters-xframeoptionsfilter-lost/146457
 TPL=$(envsubst < webapps.dist/geoserver/WEB-INF/templates/cross-origin.xml.envsubst)
 sed "/<\/web-app>/i $(echo $TPL)" webapps.dist/geoserver/WEB-INF/web.xml > /tmp/web.xml
 unset TPL
@@ -46,28 +57,24 @@ fi
 
 CLUSTER_CONFIG_PROPERTIES="$CLUSTER_CONFIG_DIR/cluster.properties"
 
-export CLUSTER_CONFIG_READONLY=${CLUSTER_CONFIG_READONLY:-disabled}
-export CLUSTER_CONFIG_DURABLE=${CLUSTER_CONFIG_DURABLE:-false}
-export CLUSTER_CONFIG_EMBEDDED_BROKER=${CLUSTER_CONFIG_EMBEDDED_BROKER:-disabled}
-export CLUSTER_CONFIG_CONNECTION_RETRY=${CLUSTER_CONFIG_CONNECTION_RETRY:-10}
-export CLUSTER_CONFIG_TOGGLE_MASTER=${CLUSTER_CONFIG_TOGGLE_MASTER:-false}
-export CLUSTER_CONFIG_CONNECTION=${CLUSTER_CONFIG_CONNECTION:-disabled}
-export CLUSTER_CONFIG_TOGGLE_SLAVE=${CLUSTER_CONFIG_TOGGLE_SLAVE:-false}
-export CLUSTER_CONFIG_CONNECTION_MAXWAIT=${CLUSTER_CONFIG_CONNECTION_MAXWAIT:-500}
+if [[ ! -f $CLUSTER_CONFIG_PROPERTIES ]]
+then 
+    export CLUSTER_CONFIG_READONLY=${CLUSTER_CONFIG_READONLY:-disabled}
+    export CLUSTER_CONFIG_DURABLE=${CLUSTER_CONFIG_DURABLE:-false}
+    export CLUSTER_CONFIG_EMBEDDED_BROKER=${CLUSTER_CONFIG_EMBEDDED_BROKER:-disabled}
+    export CLUSTER_CONFIG_CONNECTION_RETRY=${CLUSTER_CONFIG_CONNECTION_RETRY:-10}
+    export CLUSTER_CONFIG_TOGGLE_MASTER=${CLUSTER_CONFIG_TOGGLE_MASTER:-false}
+    export CLUSTER_CONFIG_CONNECTION=${CLUSTER_CONFIG_CONNECTION:-disabled}
+    export CLUSTER_CONFIG_TOGGLE_SLAVE=${CLUSTER_CONFIG_TOGGLE_SLAVE:-false}
+    export CLUSTER_CONFIG_CONNECTION_MAXWAIT=${CLUSTER_CONFIG_CONNECTION_MAXWAIT:-500}
+    
+    envsubst < webapps.dist/geoserver/WEB-INF/templates/cluster.properties.envsubst > $CLUSTER_CONFIG_PROPERTIES
 
-envsubst < webapps.dist/geoserver/WEB-INF/templates/cluster.properties.envsubst > $CLUSTER_CONFIG_PROPERTIES
-
-if [[ -n "$CLUSTER_CONFIG_INSTANCE_NAME" ]]
-then
-    echo instanceName=${CLUSTER_CONFIG_INSTANCE_NAME} >> $CLUSTER_CONFIG_PROPERTIES
+    if [[ -n "$CLUSTER_CONFIG_INSTANCE_NAME" ]]
+    then
+        echo instanceName=${CLUSTER_CONFIG_INSTANCE_NAME} >> $CLUSTER_CONFIG_PROPERTIES
+    fi
 fi
-
-# Copy
-echo "Copying Geoserver default config if empty"
-find ./webapps.dist/geoserver/data -maxdepth 1 -type f -name "*.xml" | xargs cp -t $GEOSERVER_DATA_DIR
-
-# Geoserver Data dir
-GEOSERVER_OPTS="$GEOSERVER_OPTS -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}"
 
 # Geoserver Interface
 GEOSERVER_CONSOLE_DISABLED=${GEOSERVER_CONSOLE_DISABLED:-false}
@@ -117,6 +124,11 @@ fi
 export CATALINA_OPTS="${CATALINA_OPTS} ${GEOSERVER_OPTS}"
 
 # Add context URL
-echo "<Context docBase=\"$CATALINA_HOME/webapps.dist/geoserver\" />" > ./conf/Catalina/localhost/$GEOSERVER_CONTEXT_PATH.xml
+_CONTEXT_PATH=./conf/Catalina/localhost/${GEOSERVER_CONTEXT_PATH#*/}.xml
+if [[ ! -f "$_CONTEXT_PATH" ]]
+then
+    echo "Geoserver deploy file not found, creating one..."
+    echo "<Context docBase=\"$CATALINA_HOME/webapps.dist/geoserver\" />" > $_CONTEXT_PATH
+fi
 
 exec "$@"
