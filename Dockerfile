@@ -72,7 +72,7 @@ RUN mkdir -p ${GEOSERVER_DATA_DIR} /usr/local/tomcat/conf/Catalina/localhost && 
 ENV GEOSERVER_CORS_ALLOWED_ORIGINS="*"
 ENV GEOSERVER_CONTEXT_PATH=/geoserver
 
-COPY templates ./webapps.dist/geoserver/WEB-INF/templates
+COPY templates/envsubst ./webapps.dist/geoserver/WEB-INF/templates
 
 RUN touch ./webapps.dist/geoserver/WEB-INF/web.xml && \
     chmod g=u ./webapps.dist/geoserver/WEB-INF/web.xml
