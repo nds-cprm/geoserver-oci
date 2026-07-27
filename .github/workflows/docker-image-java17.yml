@@ -1,8 +1,8 @@
-name: Docker Image CI - Java 11
+name: Docker Image CI - Java 17
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 2 5 * *"
+    - cron: "0 2 3 * *"
 env:
   DOCKER_IMAGE_NAME: docker.io/ndscprm/geoserver
 jobs:    
@@ -11,8 +11,8 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [2.24.2, 2.26.4, 2.27.3, 2.27.4, 2.27.5]
-        # os: [alpine, jammy]        
+        version: [2.27.4, 2.27.5, 2.28.3, 2.28.4]
+        # os: [alpine, jammy]
     steps:
     - name: Current DateTime
       id: datetime
@@ -42,7 +42,7 @@ jobs:
         # Path to the Dockerfile
         file: Dockerfile
         build-args: |
-          JAVA_MAJOR_VERSION=11
+          JAVA_MAJOR_VERSION=17
           GEOSERVER_VERSION=${{ matrix.version }} 
         # Always attempt to pull all referenced images
         pull: true
@@ -50,10 +50,10 @@ jobs:
         push: true
         # List of tags
         tags: |
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11-${{ steps.datetime.outputs.time }}
-          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java17-${{ steps.datetime.outputs.time }}
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java17
           ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
-        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11-${{ steps.datetime.outputs.time }}
+        cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java17-${{ steps.datetime.outputs.time }}
         cache-to: type=inline
         platforms: linux/amd64,linux/arm64
         
@@ -63,7 +63,7 @@ jobs:
       uses: docker/scout-action@v1
       with:
         command: cves
-        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java11-${{ steps.datetime.outputs.time }}
+        image: ${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}-java17-${{ steps.datetime.outputs.time }}
         sarif-file: sarif.output.json
         summary: true
     
